@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Forge</title>
+  <link rel="stylesheet" href="../stylesheets/style.css">
+</head>
+<body>
+<!-- Back to Home link at the top left -->
+<a href="index.html" id="home-link">Back to Home</a>
+
+<h1>Crafting</h1>
+<p>Craft here!</p>
+
+<!-- Crafting Section -->
+<div id="crafting-container">
+  <div id="crafting-result">Craft an item!</div>
+  <button id="crafting-button" onclick="craftItem()">Craft</button>
+  <p id="crafting-cooldown" style="display:none;">
+    Cooldown: <span id="cooldown-timer">0</span> seconds
+  </p>
+</div>
+
+<script src="/javascripts/crafting.mjs"></script>
+</body>
+</html>
