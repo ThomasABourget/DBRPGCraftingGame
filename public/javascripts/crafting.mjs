@@ -5,6 +5,18 @@ const cooldownTimer = document.getElementById("cooldown-timer");
 
 let craftingCooldown = false;
 
+// Rarity configuration mapping rarityid to colors and names
+const rarityConfig = {
+    1: { name: 'Common', color: 'gray' },
+    2: { name: 'Uncommon', color: 'green' },
+    3: { name: 'Rare', color: 'blue' },
+    4: { name: 'Epic', color: 'purple' },
+    5: { name: 'Legendary', color: 'gold' },
+    6: { name: 'Divine', color: 'orange' },
+};
+
+const playerId = 1; // Set the player ID to 1 for this example
+
 async function craftItem() {
     if (craftingCooldown) {
         craftingResult.textContent = "Please wait before crafting again!";
@@ -12,14 +24,20 @@ async function craftItem() {
     }
 
     try {
-        const response = await fetch('/api/craft');
+        const response = await fetch('/api/craft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerid: playerId }),
+        });
+
         if (response.ok) {
             const item = await response.json();
-            let itemRarity = item.rarity || 'common'; // Default to common if no rarity specified
+            const rarityId = item.rarityid || 1; // Default to Common if no rarityid specified
+            const rarity = rarityConfig[rarityId] || rarityConfig[1]; // Use rarity config or default to Common
 
             // Set the text content with fade-in and color based on rarity
-            craftingResult.textContent = `You crafted: ${item.itemname || 'Unknown Item'}!`;
-            setRarityColor(itemRarity);
+            craftingResult.textContent = `You crafted: ${item.itemname || 'Unknown Item'}! (${rarity.name})`;
+            craftingResult.style.color = rarity.color;
             fadeInResult(); // Trigger fade-in effect
             startCooldown(300); // Start a 5-minute cooldown
         } else {
@@ -28,23 +46,6 @@ async function craftItem() {
     } catch (error) {
         craftingResult.textContent = "An error occurred. Please try again later.";
         console.error("Crafting error:", error);
-    }
-}
-
-function setRarityColor(rarity) {
-    switch (rarity.toLowerCase()) {
-        case 'legendary':
-            craftingResult.style.color = 'gold';
-            break;
-        case 'rare':
-            craftingResult.style.color = 'blue';
-            break;
-        case 'uncommon':
-            craftingResult.style.color = 'green';
-            break;
-        default:
-            craftingResult.style.color = 'red'; // Common items
-            break;
     }
 }
 

@@ -7,24 +7,45 @@
     <link rel="stylesheet" href="../stylesheets/style.css">
 </head>
 <body>
-
-<!-- Back to Home link in the top left -->
+<!-- Back to Home link -->
 <a href="index.html" id="home-link">Back to Home</a>
 
 <h1>User Info</h1>
 
-<!-- Player Information Section -->
+<!-- User Info Section -->
 <div id="user-info">
-    <p id="playername">Loading player information...</p>
+    <p id="playername">Loading...</p>
     <p id="level">Loading...</p>
 </div>
 
-<!-- Player Inventory Section -->
-<h2>Inventory</h2>
-<div id="inventory-container">
-    <p>Loading inventory...</p>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
 
-<script src="/javascripts/userinfo.mjs"></script>
+        try {
+            // Fetch user info using the token
+            const response = await fetch('/api/player/1', {
+                headers: {
+                    'Authorization': token,
+                },
+            });
+
+            if (response.status === 403 || response.status === 404) {
+                alert('Access denied or user not found.');
+                window.location.href = '/html/login.html'; // Redirect if unauthorized
+                return;
+            }
+
+            const data = await response.json();
+
+            // Display user info
+            document.getElementById('playername').textContent = `Player Name: ${data.playername}`;
+            document.getElementById('level').textContent = `Level: ${data.playerlevel}`;
+        } catch (err) {
+            console.error('Error fetching user info:', err);
+            alert('An error occurred while loading user data.');
+        }
+    });
+</script>
 </body>
 </html>

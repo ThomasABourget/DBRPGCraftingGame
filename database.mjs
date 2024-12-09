@@ -12,7 +12,7 @@ const client = new Client({
 (async () => {
     try {
         await client.connect();
-        const res = await client.query("SELECT * FROM playerInventory");
+        const res = await client.query("SELECT * FROM playerinventory");
         console.log(res.rows);
     } catch (err) {
         console.error("Error executing query:", err); // Log the full error object

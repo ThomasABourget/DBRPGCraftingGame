@@ -1,38 +1,32 @@
-const loginForm = document.querySelector('#loginForm');
+// Handle form submission for login
+document.getElementById('login-form').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent form from refreshing the page
 
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const playername = document.querySelector('#loginPlayername').value.trim();
-    const password = document.querySelector('#loginPassword').value.trim();
-
-    if (!playername || !password) {
-        alert('Please fill in both fields.');
-        return;
-    }
+    const playername = document.getElementById('playername').value;
+    const password = document.getElementById('password').value;
 
     try {
         const response = await fetch('/api/login', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json', // Ensure you're sending JSON
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playername, password }), // Send data as JSON
+            body: JSON.stringify({ playername, password }),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
-            // Login was successful
+            // Login successful
+            const data = await response.json();
             alert('Login successful!');
-            // Redirect to the inventory page (or wherever you need)
-            window.location.href = '/html/inventory.html';
+            // Redirect to another page (e.g., player details or home page)
+            window.location.href = `/html/userinfo.html?playerId=${data.playerId}`;
         } else {
-            // Login failed
-            alert(`Login failed: ${data.message}`);
+            // Display error message
+            const errorMessage = await response.text();
+            document.getElementById('error-message').textContent = errorMessage || 'Login failed.';
         }
     } catch (error) {
-        console.error('Login error:', error);
-        alert('An error occurred. Please try again.');
+        console.error('Error during login:', error);
+        document.getElementById('error-message').textContent = 'An error occurred. Please try again.';
     }
 });

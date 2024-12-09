@@ -1,9 +1,10 @@
-// Replace with the actual player ID, potentially retrieved from a session or token
+// Set the player ID to 1 directly
 const playerId = 1;
 
 // Function to fetch and display player information
 async function loadUserInfo() {
     try {
+        // Fetch data for the hardcoded player ID
         const response = await fetch(`/api/player/${playerId}`);
         if (response.ok) {
             const data = await response.json();
@@ -23,6 +24,7 @@ async function loadUserInfo() {
 // Function to fetch and display player inventory
 async function loadUserInventory() {
     try {
+        // Fetch inventory data for the hardcoded player ID
         const response = await fetch(`/api/player-inventory/${playerId}`);
         const inventoryContainer = document.getElementById('inventory-container');
 

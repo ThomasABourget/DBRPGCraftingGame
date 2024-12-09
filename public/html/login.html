@@ -2,20 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link rel="stylesheet" href="../stylesheets/style.css">
 </head>
 <body>
+
 <h1>Login</h1>
-<form id="loginForm">
-  <label for="loginPlayername">Username:</label>
-  <input type="text" id="loginPlayername" name="playername" required>
-  <br>
-  <label for="loginPassword">Password:</label>
-  <input type="password" id="loginPassword" name="password" required>
-  <br>
+
+<!-- Login Form -->
+<form id="login-form">
+  <label for="playername">Player Name:</label>
+  <input type="text" id="playername" name="playername" required>
+
+  <label for="password">Password:</label>
+  <input type="password" id="password" name="password" required>
+
   <button type="submit">Login</button>
 </form>
-<script src="../javascripts/login.mjs"></script>
+
+<!-- Error Message -->
+<p id="error-message" style="color: red;"></p>
+
+<script src="/javascripts/login.mjs"></script>
 </body>
 </html>
