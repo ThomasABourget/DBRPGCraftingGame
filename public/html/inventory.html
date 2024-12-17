@@ -5,6 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventory</title>
   <link rel="stylesheet" href="../stylesheets/style.css">
+  <style>
+    /* Styling for tabs */
+    .tabs-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      background-color: #000000;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+    }
+    .tab:hover {
+      background-color: #000000;
+    }
+    .tab .quantity {
+      display: none;
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .tab:hover .quantity {
+      display: block;
+    }
+  </style>
 </head>
 <body>
 
@@ -18,15 +53,81 @@
   <h2>Player Information</h2>
   <p id="playername">Loading...</p>
   <p id="level">Level: Loading...</p>
-  <p id="experience">Experience: Loading...</p>
 </div>
 
 <!-- Inventory Section -->
 <h2>Inventory</h2>
-<div id="inventory-list">
+<div id="inventory-list" class="tabs-container">
   <p>Loading inventory...</p>
 </div>
 
-<script type="module" src="/javascripts/inventory.mjs"></script>
+<script type="module">
+  // Hardcoded player ID
+  const playerId = 1;
+
+  // Function to fetch and display player information
+  async function loadPlayerInfo() {
+    try {
+      const response = await fetch(`/api/player/${playerId}`);
+      const playerInfoContainer = document.getElementById('player-info');
+
+      if (response.ok) {
+        const player = await response.json();
+        document.getElementById('playername').textContent = `Player Name: ${player.playername}`;
+        document.getElementById('level').textContent = `Level: ${player.playerlevel}`;
+      } else {
+        playerInfoContainer.innerHTML = '<p>Error fetching player information.</p>';
+      }
+    } catch (error) {
+      console.error('Error loading player info:', error);
+      document.getElementById('player-info').innerHTML = '<p>Error loading player data.</p>';
+    }
+  }
+
+  // Function to fetch and display player inventory
+  async function loadPlayerInventory() {
+    try {
+      const response = await fetch(`/api/player-inventory/${playerId}`);
+      const inventoryList = document.getElementById('inventory-list');
+
+      if (response.ok) {
+        const inventory = await response.json();
+
+        if (inventory.length === 0) {
+          inventoryList.innerHTML = '<p>No items in inventory.</p>';
+        } else {
+          // Clear existing content
+          inventoryList.innerHTML = '';
+
+          // Create tabs for each inventory item
+          inventory.forEach((item) => {
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.textContent = item.itemname; // Assume itemname is available in the response
+
+            const quantityLabel = document.createElement('span');
+            quantityLabel.className = 'quantity';
+            quantityLabel.textContent = `Quantity: ${item.quantity}`;
+
+            tab.appendChild(quantityLabel);
+            inventoryList.appendChild(tab);
+          });
+        }
+      } else {
+        inventoryList.innerHTML = '<p>Error fetching inventory.</p>';
+      }
+    } catch (error) {
+      console.error('Error loading inventory:', error);
+      document.getElementById('inventory-list').innerHTML = '<p>Error loading inventory data.</p>';
+    }
+  }
+
+  // Initialize functions on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPlayerInfo();
+    loadPlayerInventory();
+  });
+</script>
+
 </body>
 </html>

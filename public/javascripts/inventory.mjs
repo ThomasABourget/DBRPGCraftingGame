@@ -11,7 +11,6 @@ async function loadPlayerInfo() {
             const player = await response.json();
             document.getElementById('playername').textContent = `Player Name: ${player.playername}`;
             document.getElementById('level').textContent = `Level: ${player.playerlevel}`;
-            document.getElementById('experience').textContent = `Experience: ${player.experience}`;
         } else {
             playerInfoContainer.innerHTML = '<p>Error fetching player information.</p>';
         }
@@ -39,8 +38,7 @@ async function loadPlayerInventory() {
                 table.innerHTML = `
                     <thead>
                         <tr>
-                            <th>Inventory ID</th>
-                            <th>Item ID</th>
+                            <th>Item Name</th>
                             <th>Quantity</th>
                         </tr>
                     </thead>
@@ -49,8 +47,7 @@ async function loadPlayerInventory() {
                     .map(
                         (item) => `
                             <tr>
-                                <td>${item.inventoryid}</td>
-                                <td>${item.itemid}</td>
+                                <td>${item.itemname}</td>
                                 <td>${item.quantity}</td>
                             </tr>
                         `

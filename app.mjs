@@ -36,6 +36,29 @@ const client = new Client({
     console.error("Database connection error:", err.message);
   }
 })();
+// Endpoint to fetch player inventory with item names
+app.get('/api/player-inventory/:playerId', async (req, res) => {
+  const playerId = req.params.playerId;
+
+  try {
+    const result = await client.query(
+        `SELECT ci.itemname, pi.quantity
+         FROM playerInventory pi
+         INNER JOIN craftableitem ci ON pi.itemid = ci.itemid
+         WHERE pi.playerid = $1`,
+        [playerId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json([]);
+    }
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Error fetching inventory:', err.message);
+    res.status(500).json({ message: 'Error fetching inventory' });
+  }
+});
 
 // Endpoint to get player info
 app.get('/api/player/:playerid', async (req, res) => {
@@ -63,6 +86,8 @@ app.get('/api/player/:playerid', async (req, res) => {
 });
 
 // Endpoint to craft an item and add it to the inventory
+// Endpoint to craft an item and level up the player
+// Endpoint to craft an item and add it to the inventory
 app.post('/api/craft', async (req, res) => {
   const { playerid } = req.body; // Get the playerid from the request body
 
@@ -81,39 +106,42 @@ app.post('/api/craft', async (req, res) => {
     }
 
     const item = itemResult.rows[0];
-    const { itemid, rarityid } = item;
+    const { itemid, itemname, rarityid } = item;
 
     // Check if the player already has the item in their inventory
-    const inventoryCheck = await client.query(
-        'SELECT quantity FROM playerInventory WHERE playerid = $1 AND itemid = $2',
+    await client.query(
+        `INSERT INTO playerInventory (playerid, itemid, quantity)
+       VALUES ($1, $2, 1)
+       ON CONFLICT (playerid, itemid)
+       DO UPDATE SET quantity = playerInventory.quantity + 1`,
         [playerid, itemid]
     );
 
-    if (inventoryCheck.rows.length > 0) {
-      // Update the quantity if the item already exists in the inventory
-      await client.query(
-          'UPDATE playerInventory SET quantity = quantity + 1 WHERE playerid = $1 AND itemid = $2',
-          [playerid, itemid]
-      );
-    } else {
-      // Insert the item into the inventory if it does not exist
-      await client.query(
-          'INSERT INTO playerInventory (playerid, itemid, quantity) VALUES ($1, $2, $3)',
-          [playerid, itemid, 1]
-      );
-    }
+    // Increment the player's level by 1
+    const levelUpdateResult = await client.query(
+        `UPDATE player
+       SET playerlevel = playerlevel + 1
+       WHERE playerid = $1
+       RETURNING playerlevel`,
+        [playerid]
+    );
 
-    // Return the crafted item details
+    const updatedLevel = levelUpdateResult.rows[0].playerlevel;
+
+    // Return the crafted item details and updated player level
     res.status(200).json({
-      itemid: itemid,
-      itemname: item.itemname,
+      message: `Item crafted successfully! Player leveled up to level ${updatedLevel}.`,
+      itemname: itemname,
       rarityid: rarityid,
+      playerlevel: updatedLevel,
     });
   } catch (err) {
     console.error('Error crafting item:', err.message);
     res.status(500).json({ message: 'Error crafting item.' });
   }
 });
+
+
 
 // Endpoint to register a new user
 app.post('/api/register', async (req, res) => {
